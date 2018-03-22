@@ -1,9 +1,31 @@
 import requests
 from bs4 import BeautifulSoup
 
-target_url = 'https://yahoo.co.jp'  #example.co.jpは架空のドメイン。任意のurlに変更する
-r = requests.get(target_url)         #requestsを使って、webから取得
-soup = BeautifulSoup(r.text, 'lxml') #要素を抽出
+# 検索済みのリンクはタプルへ保存
+visited = set()
+# 検索対象の頂点となるURLを指定
+q = ['https://www.yahoo.co.jp']
+# URLから検索したい文字列を指定
+keyword = 'guide'
 
-for a in soup.find_all('a'):
-    print(a.get('href'))         #リンクを表示
+# リストが空になるまでループする 
+while len(q) > 0:
+    url_path = q.pop(0)
+    print(url_path)
+    html = requests.get(url_path)
+    soup = BeautifulSoup(html.text, 'lxml')
+    print(soup)
+    href = soup.a.get("href")
+    print(href)
+
+    # 検索したい文字列を確認
+    if keyword in href:
+        print(url_path)
+        break
+
+    urls = href
+    for url in urls:
+        if url not in visited:
+            # 未検索のurlをキューへ追加する
+            visited.add(url_path)
+            q.append(url_path)
